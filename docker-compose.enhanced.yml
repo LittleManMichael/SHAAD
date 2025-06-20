@@ -1,0 +1,45 @@
+# Enhanced Docker Compose for SHAAD
+# Uses enhanced mock server with real AI integration
+
+services:
+  # Enhanced Backend with Real AI Integration
+  backend:
+    image: node:20-alpine
+    container_name: shaad_backend_enhanced
+    working_dir: /app
+    command: sh -c "npm install && node enhanced-mock-server.js"
+    environment:
+      - NODE_ENV=development
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_PORT=3001
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  # Frontend with production API URL
+  frontend:
+    image: node:20-alpine
+    container_name: shaad_frontend_enhanced
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3002"
+    environment:
+      - VITE_API_URL=https://myshaad.com/api
+      - VITE_WS_URL=wss://myshaad.com
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_APP_VERSION=${VITE_APP_VERSION}
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./frontend:/app
+    restart: unless-stopped
+
+networks:
+  default:
+    external: true
+    name: shaad_network

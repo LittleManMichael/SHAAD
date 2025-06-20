@@ -1,0 +1,145 @@
+# Production Docker Compose for SHAAD
+# This uses the real backend with PostgreSQL, Redis, and Qdrant
+
+services:
+  # Real Backend API with full functionality
+  backend:
+    image: node:20-alpine
+    container_name: shaad_backend_prod
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_HOST=shaad_postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=shaad_redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=6379
+      - QDRANT_HOST=shaad_qdrant
+      - QDRANT_PORT=6333
+      - JWT_SECRET=${JWT_SECRET}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - N8N_HOST=shaad_n8n
+      - N8N_PORT=5678
+      - API_PORT=3001
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS}
+      - LOG_LEVEL=${LOG_LEVEL}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    networks:
+      - default
+    restart: unless-stopped
+
+  # Frontend with production API URL
+  frontend:
+    image: node:20-alpine
+    container_name: shaad_frontend_prod
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3002"
+    environment:
+      - VITE_API_URL=http://myshaad.com/api
+      - VITE_WS_URL=ws://myshaad.com
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_APP_VERSION=${VITE_APP_VERSION}
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./frontend:/app
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: shaad_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: shaad_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: shaad_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    restart: unless-stopped
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: shaad_n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://myshaad.com:5678/
+      - N8N_RUNNERS_ENABLED=true
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n-workflows:/home/node/workflows
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  n8n_data:
+
+networks:
+  default:
+    external: true
+    name: shaad_network

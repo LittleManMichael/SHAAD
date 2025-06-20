@@ -1,0 +1,47 @@
+# Simple Docker Compose for testing
+# This runs just the backend and frontend without building
+
+services:
+  # Backend API
+  backend-simple:
+    image: node:20-alpine
+    container_name: shaad_backend_simple
+    working_dir: /app
+    command: sh -c "npm install && node mock-server.js"
+    environment:
+      - NODE_ENV=development
+      - POSTGRES_HOST=shaad_postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=5432
+      - REDIS_HOST=shaad_redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    networks:
+      - default
+    restart: unless-stopped
+
+  # Frontend (development)
+  frontend-simple:
+    image: node:20-alpine
+    container_name: shaad_frontend_simple
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3002"
+    environment:
+      - VITE_API_URL=http://myshaad.com/api
+      - VITE_WS_URL=ws://myshaad.com
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./frontend:/app
+    restart: unless-stopped
+
+networks:
+  default:
+    external: true
+    name: shaad_network

@@ -1,0 +1,54 @@
+# SHAAD System Administration Sudoers Configuration
+# This allows the 'shaad' user to run specific system commands without a password
+# for automated system administration tasks
+
+# User privilege specification for shaad user
+shaad ALL=NOPASSWD: /usr/bin/systemctl
+shaad ALL=NOPASSWD: /usr/sbin/nginx
+shaad ALL=NOPASSWD: /usr/bin/apt update
+shaad ALL=NOPASSWD: /usr/bin/apt upgrade
+shaad ALL=NOPASSWD: /usr/bin/apt install *
+shaad ALL=NOPASSWD: /usr/bin/apt remove *
+shaad ALL=NOPASSWD: /usr/bin/apt autoremove
+shaad ALL=NOPASSWD: /usr/bin/snap install *
+shaad ALL=NOPASSWD: /usr/bin/snap remove *
+shaad ALL=NOPASSWD: /usr/bin/snap refresh
+shaad ALL=NOPASSWD: /bin/cp * /etc/nginx/sites-available/*
+shaad ALL=NOPASSWD: /bin/chown * /home/shaad/*
+shaad ALL=NOPASSWD: /bin/chmod * /home/shaad/*
+shaad ALL=NOPASSWD: /usr/sbin/ufw
+shaad ALL=NOPASSWD: /bin/mkdir /var/log/shaad
+shaad ALL=NOPASSWD: /bin/touch /var/log/shaad/*
+shaad ALL=NOPASSWD: /usr/bin/certbot
+shaad ALL=NOPASSWD: /usr/sbin/logrotate
+shaad ALL=NOPASSWD: /bin/mount
+shaad ALL=NOPASSWD: /bin/umount
+
+# Allow editing specific configuration files
+shaad ALL=NOPASSWD: /usr/bin/tee /etc/nginx/sites-available/*
+shaad ALL=NOPASSWD: /usr/bin/tee /etc/systemd/system/*
+shaad ALL=NOPASSWD: /usr/bin/tee /etc/environment
+
+# Docker and container management
+shaad ALL=NOPASSWD: /usr/bin/docker
+shaad ALL=NOPASSWD: /usr/local/bin/docker-compose
+shaad ALL=NOPASSWD: /usr/bin/docker-compose
+
+# System monitoring and logs
+shaad ALL=NOPASSWD: /usr/bin/journalctl *
+shaad ALL=NOPASSWD: /usr/bin/tail /var/log/*
+shaad ALL=NOPASSWD: /bin/cat /var/log/*
+shaad ALL=NOPASSWD: /usr/bin/less /var/log/*
+
+# Network diagnostics
+shaad ALL=NOPASSWD: /bin/netstat
+shaad ALL=NOPASSWD: /usr/bin/ss
+shaad ALL=NOPASSWD: /bin/ping *
+shaad ALL=NOPASSWD: /usr/bin/curl *
+shaad ALL=NOPASSWD: /usr/bin/wget *
+
+# File operations for SHAAD project
+shaad ALL=NOPASSWD: /bin/cp * /home/shaad/ai-assistant-dashboard/*
+shaad ALL=NOPASSWD: /bin/mv * /home/shaad/ai-assistant-dashboard/*
+shaad ALL=NOPASSWD: /bin/rm /home/shaad/ai-assistant-dashboard/*
+shaad ALL=NOPASSWD: /bin/ln -s * /home/shaad/ai-assistant-dashboard/*

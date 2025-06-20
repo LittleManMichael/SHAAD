@@ -1,0 +1,5 @@
+This is a text file test for Discord monitoring.
+Now that .txt files are included, this should trigger a notification!
+
+MODIFICATION TEST: This line was added to test .txt file change detection!
+The bot should now detect this modification and post it to #file-changes!
