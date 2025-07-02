@@ -24,7 +24,8 @@ if (process.env.NODE_ENV !== 'production') {
     postgres: !!process.env.POSTGRES_PASSWORD,
     redis: !!process.env.REDIS_URL,
     anthropic: !!process.env.ANTHROPIC_API_KEY,
-    openai: !!process.env.OPENAI_API_KEY
+    openai: !!process.env.OPENAI_API_KEY,
+    jwt: !!process.env.JWT_SECRET
   });
 }
 

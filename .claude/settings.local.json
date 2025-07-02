@@ -45,7 +45,10 @@
       "Bash(docker logs:*)",
       "Bash(docker volume rm:*)",
       "Bash(docker volume:*)",
-      "Bash(PGPASSWORD:*)"
+      "Bash(PGPASSWORD:*)",
+      "Bash(mv:*)",
+      "Bash(./test-ai.sh:*)",
+      "Bash(/home/shaad/ai-assistant-dashboard/test-ai.sh:*)"
     ],
     "deny": []
   }
