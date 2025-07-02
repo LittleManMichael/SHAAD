@@ -176,43 +176,60 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Initialize databases and start server
 const startServer = async () => {
+  let databasesConnected = false;
+  
   try {
-    // Connect to all databases
+    // Try to connect to all databases
     await connectDatabases();
+    databasesConnected = true;
 
-    // Start HTTP server
-    const server = app.listen(PORT, () => {
-      const host = process.env.API_HOST || 'localhost';
-      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-      console.log('🚀 SHAAD Backend API started with database connections');
-      console.log(`📊 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔒 CORS origin: ${process.env.CORS_ORIGIN || 'https://myshaad.com'}`);
-      
-      // Only show detailed URLs in development
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`📊 Health check: ${protocol}://${host}:${PORT}/health`);
-        console.log(`🔌 API status: ${protocol}://${host}:${PORT}/api/status`);
-        console.log(`🔐 Auth endpoints: ${protocol}://${host}:${PORT}/api/auth/*`);
-      }
-    });
-
-    // Graceful shutdown handlers
-    const shutdown = async () => {
-      console.log('\n🛑 Shutting down gracefully...');
-      server.close(async () => {
-        await closeDatabases();
-        process.exit(0);
-      });
-    };
-
-    process.on('SIGTERM', shutdown);
-    process.on('SIGINT', shutdown);
+    console.log('✅ Database connections successful');
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    console.warn('⚠️  Database connection failed, starting server without databases');
+    console.warn('📝 Note: Database-dependent features will not work');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('🔧 Database error:', error instanceof Error ? error.message : error);
+    }
+    databasesConnected = false;
   }
+
+  // Start HTTP server regardless of database connection
+  const server = app.listen(PORT, () => {
+    const host = process.env.API_HOST || 'localhost';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    
+    if (databasesConnected) {
+      console.log('🚀 SHAAD Backend API started with database connections');
+    } else {
+      console.log('🚀 SHAAD Backend API started (databases unavailable)');
+    }
+    
+    console.log(`📊 Server running on port ${PORT}`);  
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔒 CORS origin: ${process.env.CORS_ORIGIN || 'https://myshaad.com'}`);
+    
+    // Only show detailed URLs in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`📊 Health check: ${protocol}://${host}:${PORT}/health`);
+      console.log(`🔌 API status: ${protocol}://${host}:${PORT}/api/status`);
+      console.log(`🔐 Auth endpoints: ${protocol}://${host}:${PORT}/api/auth/*`);
+    }
+  });
+
+  // Graceful shutdown handlers
+  const shutdown = async () => {
+    console.log('\n🛑 Shutting down gracefully...');
+    server.close(async () => {
+      if (databasesConnected) {
+        await closeDatabases();
+      }
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 };
 
 startServer();

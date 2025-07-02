@@ -39,7 +39,9 @@
       "Bash(git init:*)",
       "Bash(git rm:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+      "Bash(docker stop:*)"
     ],
     "deny": []
   }
