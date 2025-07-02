@@ -36,6 +36,7 @@ const redisClient = createClient({
 // Qdrant configuration (for later use)
 const qdrantClient = new QdrantClient({
   url: `http://${process.env.QDRANT_HOST || 'localhost'}:${process.env.QDRANT_PORT || '6333'}`,
+  checkCompatibility: false, // Disable version compatibility check
 });
 
 // Database connection functions
@@ -68,8 +69,13 @@ export const connectDatabases = async () => {
 // Graceful shutdown
 export const closeDatabases = async () => {
   try {
-    await pgPool.end();
-    await redisClient.quit();
+    // Only close if connections are open
+    if (!pgPool.ended) {
+      await pgPool.end();
+    }
+    if (redisClient.isReady) {
+      await redisClient.quit();
+    }
     console.log('🔌 Database connections closed');
   } catch (error) {
     console.error('Error closing databases:', error);

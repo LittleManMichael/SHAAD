@@ -41,7 +41,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git stash:*)",
-      "Bash(docker stop:*)"
+      "Bash(docker stop:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(docker volume:*)",
+      "Bash(PGPASSWORD:*)"
     ],
     "deny": []
   }
