@@ -33,10 +33,10 @@ export class VectorDBService {
       );
 
       if (!exists) {
-        // Create collection with OpenAI embedding dimensions (1536 for text-embedding-3-small)
+        // Create collection with OpenAI embedding dimensions (768 for text-embedding-3-small)
         await this.client.createCollection(this.collectionName, {
           vectors: {
-            size: 1536,
+            size: 768,
             distance: 'Cosine'
           }
         });

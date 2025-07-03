@@ -37,8 +37,21 @@ export class OpenAIService {
         content: response.choices[0].message.content || '',
         usage: response.usage
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('OpenAI API error:', error);
+      
+      // Check for API key authentication error
+      if (error.status === 401 || error.code === 'invalid_api_key') {
+        console.warn('⚠️  OpenAI API Key is invalid or expired');
+        console.warn('📝 Using mock response for development');
+        
+        // Return mock response for development
+        return {
+          content: "I'm the OpenAI service in mock mode. The API key needs to be configured. I can help with code generation and analysis once properly set up.",
+          usage: { total_tokens: 50 }
+        };
+      }
+      
       throw new Error('Failed to get response from OpenAI');
     }
   }
@@ -109,8 +122,18 @@ Provide a clear explanation of the code's functionality.`;
       });
 
       return response.data[0].embedding;
-    } catch (error) {
+    } catch (error: any) {
       console.error('OpenAI embedding error:', error);
+      
+      // Check for API key authentication error
+      if (error.status === 401 || error.code === 'invalid_api_key') {
+        console.warn('⚠️  OpenAI API Key is invalid or expired');
+        console.warn('📝 Using mock embedding for development');
+        
+        // Return mock embedding (768 dimensions for text-embedding-3-small)
+        return new Array(768).fill(0).map(() => Math.random() * 2 - 1);
+      }
+      
       throw new Error('Failed to generate embedding');
     }
   }

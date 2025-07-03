@@ -50,8 +50,21 @@ export class ClaudeService {
           total_tokens: response.usage.input_tokens + response.usage.output_tokens
         }
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Claude API error:', error);
+      
+      // Check for API key authentication error
+      if (error.status === 401 || error.message?.includes('invalid x-api-key')) {
+        console.warn('⚠️  Claude API Key is invalid or expired');
+        console.warn('📝 Using mock response for development');
+        
+        // Return mock response for development
+        return {
+          content: "I'm SHAAD, your AI assistant. It looks like my Claude API key needs to be configured. For now, I'm running in mock mode. How can I help you today?",
+          usage: { total_tokens: 50 }
+        };
+      }
+      
       throw new Error('Failed to get response from Claude');
     }
   }

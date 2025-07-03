@@ -87,7 +87,8 @@ export class AIOrchestrator {
       };
     } catch (error) {
       console.error('AI Orchestrator error:', error);
-      throw new Error('Failed to process message');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      throw new Error(`Failed to process message: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
