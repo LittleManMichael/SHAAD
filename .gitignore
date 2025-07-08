@@ -6,10 +6,14 @@ yarn-error.log*
 
 # Environment files
 .env
+.env.*
+*.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.simple
+.env.backup
 
 # Build outputs
 dist/
@@ -77,5 +81,16 @@ backend/dist/
 *.pem
 *.key
 *.crt
+*.cer
 secrets/
 credentials/
+nginx/ssl/
+**/ssl/
+**/certificates/
+**/certs/
+
+# Sensitive data files
+database/init-*.sql
+**/*_response.json
+**/register-*.json
+create-admin.js
