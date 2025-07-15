@@ -26,6 +26,10 @@ import {
   Avatar,
   Tooltip,
   Fab,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   Send,
@@ -61,7 +65,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     isTyping,
     isConnected 
   } = useWebSocket({ 
-    autoConnect: true, 
+    autoConnect: false, 
     conversationId 
   });
   
@@ -74,6 +78,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [conversation, setConversation] = useState<ConversationWithMessages | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [useRealTime, setUseRealTime] = useState(true); // Toggle for real-time vs HTTP
+  const [selectedModel, setSelectedModel] = useState<'claude' | 'gpt'>('claude'); // Per-conversation AI model
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -219,8 +224,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         
         setMessages(prev => [...prev, tempUserMessage]);
 
-        // Send message to backend
-        const response = await conversationService.sendMessage(currentConversationId, currentMessage);
+        // Send message to backend with selected AI model
+        const response = await conversationService.sendMessage(currentConversationId, currentMessage, selectedModel);
         
         // Replace temp message with real messages from backend
         setMessages(prev => {
@@ -423,27 +428,108 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Chat Header */}
-      <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+      {/* Chat Header - Enhanced with AI Model Selector */}
+      <Box 
+        sx={{ 
+          p: 2.5, 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'linear-gradient(135deg, rgba(13, 27, 42, 0.3), rgba(23, 48, 71, 0.3))',
+        }}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
             {conversation ? (
               <>
-                <Typography variant="h6" noWrap>
+                <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
                   {conversation.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
                   {messages.length} messages
                 </Typography>
               </>
             ) : (
-              <Typography variant="h6" noWrap>
-                SHAAD AI Assistant
-              </Typography>
+              <>
+                <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
+                  SHAAD AI Assistant
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
+                  Choose your AI model and start chatting
+                </Typography>
+              </>
             )}
           </Box>
-          {/* Space for future actions */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          
+          {/* AI Model Selector */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel 
+                sx={{ 
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  '&.Mui-focused': { color: 'primary.light' }
+                }}
+              >
+                AI Model
+              </InputLabel>
+              <Select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value as 'claude' | 'gpt')}
+                label="AI Model"
+                sx={{
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.light',
+                  },
+                  '& .MuiSelect-select': {
+                    color: 'rgba(255, 255, 255, 0.9)',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: 'rgba(255, 255, 255, 0.7)',
+                  },
+                }}
+              >
+                <MenuItem value="claude">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      borderRadius: '50%', 
+                      background: 'linear-gradient(45deg, #90caf9, #f48fb1)' 
+                    }} />
+                    Claude AI
+                  </Box>
+                </MenuItem>
+                <MenuItem value="gpt">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Box sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      borderRadius: '50%', 
+                      background: 'linear-gradient(45deg, #66bb6a, #42a5f5)' 
+                    }} />
+                    ChatGPT
+                  </Box>
+                </MenuItem>
+              </Select>
+            </FormControl>
+            
+            {/* Current Model Indicator */}
+            <Chip
+              label={selectedModel === 'claude' ? 'Claude AI' : 'ChatGPT'}
+              size="small"
+              sx={{
+                background: selectedModel === 'claude' 
+                  ? 'linear-gradient(45deg, rgba(144, 202, 249, 0.2), rgba(244, 143, 177, 0.2))'
+                  : 'linear-gradient(45deg, rgba(102, 187, 106, 0.2), rgba(66, 165, 245, 0.2))',
+                color: 'primary.light',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                fontWeight: 500,
+              }}
+            />
           </Box>
         </Box>
       </Box>

@@ -2,7 +2,7 @@
 # Multi-stage build for production optimization
 
 # Stage 1: Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -29,8 +29,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create non-root user for security
-RUN addgroup -g 1001 -S nginx
-RUN adduser -S shaad -u 1001
+RUN adduser -S shaad -u 1001 -G nginx
 
 # Change ownership of nginx directories
 RUN chown -R shaad:nginx /var/cache/nginx && \

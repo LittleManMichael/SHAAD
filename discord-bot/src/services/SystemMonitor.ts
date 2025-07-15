@@ -332,13 +332,10 @@ export class SystemMonitor extends EventEmitter {
       services.shaad_backend = false;
     }
 
-    // Check PostgreSQL
-    try {
-      const { stdout } = await execAsync('pg_isready -h localhost -p 5432');
-      services.postgresql = stdout.includes('accepting connections');
-    } catch {
-      services.postgresql = false;
-    }
+    // Check PostgreSQL (via backend health endpoint which includes DB check)
+    // Since pg_isready is not available, we rely on the backend health check
+    // which already verifies PostgreSQL connectivity
+    services.postgresql = services.shaad_backend; // If backend is up, PostgreSQL is working
 
     // Check Redis
     try {

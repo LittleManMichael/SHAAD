@@ -24,6 +24,9 @@ import {
   useTheme,
   useMediaQuery,
   Divider,
+  Select,
+  FormControl,
+  Chip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -46,8 +49,11 @@ const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const { showSnackbar } = useSnackbar();
   
-  // WebSocket connection status
-  const { isConnected } = useWebSocket({ autoConnect: true });
+  // AI service status - using HTTP API
+  const [aiStatus, setAiStatus] = useState({ isOnline: true, model: 'claude' });
+  
+  // AI model selection
+  const [selectedModel, setSelectedModel] = useState<'claude' | 'gpt'>('claude');
   
   // Responsive design: check if screen is mobile
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -60,6 +66,33 @@ const Dashboard: React.FC = () => {
   
   // Currently selected conversation ID
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+
+  // Check AI service status on mount
+  useEffect(() => {
+    const checkAiStatus = async () => {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        setAiStatus({ 
+          isOnline: data.status === 'ok', 
+          model: selectedModel 
+        });
+      } catch (error) {
+        setAiStatus({ isOnline: false, model: selectedModel });
+      }
+    };
+    
+    checkAiStatus();
+    // Check status every 30 seconds
+    const interval = setInterval(checkAiStatus, 30000);
+    return () => clearInterval(interval);
+  }, [selectedModel]);
+
+  // Handle AI model change
+  const handleModelChange = (event: any) => {
+    setSelectedModel(event.target.value);
+    setAiStatus(prev => ({ ...prev, model: event.target.value }));
+  };
 
   /**
    * Handle mobile drawer toggle
@@ -164,20 +197,43 @@ const Dashboard: React.FC = () => {
             SHAAD - AI Assistant
           </Typography>
 
-          {/* Real-time Connection Status */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 2 }}>
-            <Box
+          {/* AI Model Selector */}
+          <FormControl size="small" sx={{ mr: 2, minWidth: 120 }}>
+            <Select
+              value={selectedModel}
+              onChange={handleModelChange}
               sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                bgcolor: isConnected ? 'success.main' : 'error.main',
+                color: 'white',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                },
+                '& .MuiSvgIcon-root': {
+                  color: 'white',
+                },
               }}
-            />
-            <Typography variant="caption" color="inherit" sx={{ opacity: 0.8 }}>
-              {isConnected ? 'Real-time' : 'Offline'}
-            </Typography>
-          </Box>
+            >
+              <MenuItem value="claude">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
+                  Claude AI
+                </Box>
+              </MenuItem>
+              <MenuItem value="gpt">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.main' }} />
+                  ChatGPT
+                </Box>
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* AI Status */}
+          <Chip
+            label={aiStatus.isOnline ? 'AI Online' : 'AI Offline'}
+            color={aiStatus.isOnline ? 'success' : 'error'}
+            size="small"
+            sx={{ mr: 2 }}
+          />
 
           {/* User info and menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

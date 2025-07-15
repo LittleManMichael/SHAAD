@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: shaad_postgres
+    environment:
+      POSTGRES_DB: shaad_db
+      POSTGRES_USER: shaad_user
+      POSTGRES_PASSWORD: shaad_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init-fresh.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: shaad_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: shaad_backend
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=shaad_db
+      - POSTGRES_USER=shaad_user
+      - POSTGRES_PASSWORD=shaad_password
+      - REDIS_HOST=redis
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - JWT_SECRET=mysecretkey
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: shaad_frontend
+    environment:
+      - VITE_API_URL=https://myshaad.com
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: shaad_n8n
+    environment:
+      - N8N_HOST=n8n.myshaad.com
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.myshaad.com
+      - N8N_EDITOR_BASE_URL=https://n8n.myshaad.com
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: shaad_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    restart: unless-stopped
+
+  # Discord Bot
+  discord-bot:
+    build: ./discord-bot
+    container_name: shaad_discord_bot
+    environment:
+      - NODE_ENV=production
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=shaad_db
+      - POSTGRES_USER=shaad_user
+      - POSTGRES_PASSWORD=shaad_password
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - postgres
+      - backend
+    restart: unless-stopped
+
+  # Bot Dashboard (simple web interface)
+  bot-dashboard:
+    image: nginx:alpine
+    container_name: shaad_bot_dashboard
+    ports:
+      - "3002:80"
+    volumes:
+      - ./bot-dashboard:/usr/share/nginx/html:ro
+    restart: unless-stopped
+
+  # Simple Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: shaad_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certbot-webroot:/var/www/certbot:ro
+      - ./nginx/ssl:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  n8n_data:
+  qdrant_data:

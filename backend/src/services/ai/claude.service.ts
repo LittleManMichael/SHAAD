@@ -61,7 +61,7 @@ export class ClaudeService {
         // Return mock response for development
         return {
           content: "I'm SHAAD, your AI assistant. It looks like my Claude API key needs to be configured. For now, I'm running in mock mode. How can I help you today?",
-          usage: { total_tokens: 50 }
+          usage: { input_tokens: 30, output_tokens: 20, total_tokens: 50 }
         };
       }
       

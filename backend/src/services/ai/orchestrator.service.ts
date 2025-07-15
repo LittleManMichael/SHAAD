@@ -33,7 +33,8 @@ export class AIOrchestrator {
   async processMessage(
     content: string,
     history: Message[],
-    userId: string
+    userId: string,
+    model: 'claude' | 'gpt' = 'claude'
   ): Promise<AIResponse> {
     try {
       // Retrieve relevant context from vector database
@@ -45,8 +46,9 @@ export class AIOrchestrator {
       // Analyze intent and determine if workflow is needed
       const intent = await this.analyzeIntent(content, history);
       
-      // Main AI processing with Claude
-      const response = await this.claudeService.chat([
+      // Main AI processing with selected model
+      const aiService = model === 'gpt' ? this.openaiService : this.claudeService;
+      const response = await aiService.chat([
         { role: 'system', content: systemPrompt },
         ...history,
         { role: 'user', content }
@@ -82,7 +84,7 @@ export class AIOrchestrator {
           contextUsed: relevantContext.length > 0
         },
         tokensUsed: response.usage?.total_tokens,
-        provider: 'claude',
+        provider: model,
         actions: workflowResults
       };
     } catch (error) {

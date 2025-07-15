@@ -18,7 +18,7 @@ export class MessageController {
       }
       
       const { conversationId } = req.params;
-      const { content } = req.body;
+      const { content, model } = req.body;
       const userId = req.user?.id;
 
       if (!userId) {
@@ -67,7 +67,8 @@ export class MessageController {
       const aiResponse = await orchestrator.processMessage(
         content,
         historyResult.rows,
-        userId
+        userId,
+        model || 'claude' // Default to Claude if not specified
       );
       
       // Save AI response

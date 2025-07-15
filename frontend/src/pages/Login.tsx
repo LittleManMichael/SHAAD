@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -233,19 +233,13 @@ const Login: React.FC = () => {
             </Button>
           </Box>
 
-          {/* Default Credentials Info */}
-          <Box mt={3} p={2} bgcolor="background.default" borderRadius={2}>
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              <strong>Default Admin Credentials:</strong>
-            </Typography>
+          {/* Registration Link */}
+          <Box mt={3} textAlign="center">
             <Typography variant="body2" color="textSecondary">
-              Username: <code>admin</code>
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Password: <code>password</code>
-            </Typography>
-            <Typography variant="caption" color="warning.main" display="block" mt={1}>
-              ⚠️ Please change these credentials after first login
+              Don't have an account?{' '}
+              <Link to="/register" style={{ color: 'inherit', fontWeight: 'bold', textDecoration: 'none' }}>
+                Create Account
+              </Link>
             </Typography>
           </Box>
         </Paper>

@@ -77,7 +77,8 @@ export class CodeMonitor extends EventEmitter {
         'tmp/**',
         '**/.DS_Store',
         'discord-bot/logs/**',
-        'discord-bot/**/*.log'
+        'discord-bot/**/*.log',
+        'discord-bot/*.log'
       ],
       includeExtensions: [
         '.ts', '.js', '.tsx', '.jsx',

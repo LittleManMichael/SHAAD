@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAAD Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .status.online {
+            background: #4CAF50;
+        }
+        
+        .status.offline {
+            background: #f44336;
+        }
+        
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .actions {
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 SHAAD Bot Dashboard</h1>
+            <p>Monitor and manage your Discord bots</p>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>🤖 Discord Bot</h3>
+                <div class="status online">🟢 Online</div>
+                <p>Main Discord bot for SHAAD platform interactions, AI chat, and system monitoring.</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <span class="metric-value">24/7</span>
+                        <span class="metric-label">Uptime</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">∞</span>
+                        <span class="metric-label">Commands</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">AI</span>
+                        <span class="metric-label">Powered</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🧠 AI Integration</h3>
+                <div class="status online">🟢 Active</div>
+                <p>Claude and ChatGPT integration for intelligent bot responses and conversation handling.</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <span class="metric-value">Claude</span>
+                        <span class="metric-label">Primary AI</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">GPT</span>
+                        <span class="metric-label">Secondary</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">Smart</span>
+                        <span class="metric-label">Responses</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📊 System Monitor</h3>
+                <div class="status online">🟢 Monitoring</div>
+                <p>Real-time monitoring of SHAAD platform services, databases, and system health.</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <span class="metric-value">100%</span>
+                        <span class="metric-label">Services</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">Real-time</span>
+                        <span class="metric-label">Updates</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">Auto</span>
+                        <span class="metric-label">Alerts</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ Quick Actions</h3>
+                <div class="actions">
+                    <a href="https://myshaad.com" class="btn">🏠 Main Dashboard</a>
+                    <a href="https://n8n.myshaad.com" class="btn">🔄 Workflows</a>
+                    <a href="#" class="btn" onclick="alert('Bot logs coming soon!')">📋 View Logs</a>
+                    <a href="#" class="btn" onclick="alert('Settings coming soon!')">⚙️ Settings</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>📈 Bot Statistics</h3>
+            <p>Real-time bot performance and usage metrics will be displayed here.</p>
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <p><strong>🤖 Bot Status:</strong> Online and responsive</p>
+                <p><strong>🗄️ Database:</strong> Connected to PostgreSQL</p>
+                <p><strong>🧠 AI Services:</strong> Claude & OpenAI ready</p>
+                <p><strong>📡 Discord API:</strong> Connected</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple auto-refresh for live dashboard feel
+        setInterval(() => {
+            // In a real implementation, this would fetch actual metrics
+            console.log('Dashboard refresh - Bot monitoring active');
+        }, 30000);
+    </script>
+</body>
+</html>

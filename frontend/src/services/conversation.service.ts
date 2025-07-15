@@ -131,10 +131,15 @@ class ConversationService {
    * @param conversationId - The conversation to send the message to
    * @param content - The message content
    */
-  async sendMessage(conversationId: string, content: string): Promise<SendMessageResponse> {
+  async sendMessage(
+    conversationId: string, 
+    content: string, 
+    model?: 'claude' | 'gpt'
+  ): Promise<SendMessageResponse> {
     try {
       const response = await api.post(`/conversations/${conversationId}/messages`, {
         content,
+        model: model || 'claude', // Default to Claude if not specified
       });
       return response.data;
     } catch (error: any) {

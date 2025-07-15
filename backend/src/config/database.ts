@@ -12,9 +12,9 @@ console.log('POSTGRES_PASSWORD:', process.env.POSTGRES_PASSWORD ? 'SET' : 'NOT S
 console.log('REDIS_PASSWORD:', process.env.REDIS_PASSWORD ? 'SET' : 'NOT SET');
 
 
-// PostgreSQL configuration - use localhost for development
+// PostgreSQL configuration - use environment variable
 const pgPool = new Pool({
-  host: 'localhost',
+  host: process.env.POSTGRES_HOST || 'localhost',
   port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
   database: process.env.POSTGRES_DB || 'shaad_db',
   user: process.env.POSTGRES_USER || 'shaad_user',
@@ -24,10 +24,10 @@ const pgPool = new Pool({
   connectionTimeoutMillis: 5000,
 });
 
-// Redis configuration - use localhost for development  
+// Redis configuration - use environment variable  
 const redisClient = createClient({
   socket: {
-    host: 'localhost',
+    host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
   },
   password: process.env.REDIS_PASSWORD || undefined,

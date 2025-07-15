@@ -60,7 +60,8 @@ api.interceptors.response.use(
 // Type definitions for API responses
 interface LoginResponse {
   success: boolean;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: {
     id: string;
     username: string;

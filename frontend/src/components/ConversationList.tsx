@@ -150,8 +150,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
         title: 'New Conversation',
       });
       
-      // Note: Don't add to list here - WebSocket will handle it for real-time sync
-      // This ensures all tabs see the new conversation simultaneously
+      // Add the new conversation to the list immediately
+      setConversations(prev => [newConversation, ...prev]);
       
       // Select the new conversation
       onConversationSelect(newConversation.id);
@@ -214,8 +214,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
         title: renameTitle.trim(),
       });
       
-      // Note: Don't update list here - WebSocket will handle it for real-time sync
-      // This ensures all tabs see the rename simultaneously
+      // Update the conversation in the local list immediately
+      setConversations(prev => 
+        prev.map(conversation => 
+          conversation.id === selectedMenuConversation 
+            ? { ...conversation, title: renameTitle.trim(), updated_at: new Date().toISOString() }
+            : conversation
+        ).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      );
       
       showSnackbar('Conversation renamed', 'success');
     } catch (err: any) {
@@ -234,8 +240,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
     try {
       await conversationService.deleteConversation(selectedMenuConversation);
       
-      // Note: Don't remove from list here - WebSocket will handle it for real-time sync
-      // This ensures all tabs see the deletion simultaneously
+      // Remove the conversation from the local list immediately
+      setConversations(prev => 
+        prev.filter(conversation => conversation.id !== selectedMenuConversation)
+      );
       
       // If this was the selected conversation, clear selection
       if (selectedConversationId === selectedMenuConversation) {

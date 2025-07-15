@@ -11,7 +11,8 @@
  * Any component can access auth state using: const { user, login, logout } = useAuth();
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { authService } from '../services/auth.service';
 
 // Define the shape of our User object
@@ -90,7 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login(username, password);
       
       // Store the JWT token
-      localStorage.setItem('token', response.token);
+      localStorage.setItem('token', response.accessToken);
       
       // Update user state
       setUser(response.user);

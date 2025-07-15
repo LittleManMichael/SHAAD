@@ -9,9 +9,9 @@
  *        showSnackbar('Login successful!', 'success');
  */
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Snackbar, Alert } from '@mui/material';
-import type { AlertProps } from '@mui/material';
 
 // Types of snackbar messages
 type SnackbarSeverity = 'success' | 'error' | 'warning' | 'info';
